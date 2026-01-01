@@ -1,0 +1,57 @@
+// File: prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Catatan: Untuk Prisma 7, baris 'url' tidak ditulis di sini, 
+  // melainkan diatur melalui prisma.config.ts
+}
+
+// 1. Definisi Enum (Penyebab error sebelumnya)
+enum role {
+  customer
+  admin
+}
+
+// 2. Model User
+model user {
+  id         String    @id @default(uuid())
+  username   String    @unique
+  password   String
+  email      String    @unique
+  name       String?
+  role       role      @default(customer)
+  bookings   booking[]
+  created_at DateTime  @default(now())
+}
+
+// 3. Model Field (Lapangan)
+model field {
+  id             String    @id @default(uuid())
+  name           String
+  type           String    // Contoh: 'vinyl' atau 'sintetis'
+  price_per_hour Int
+  bookings       booking[]
+}
+
+// 4. Model Booking (Transaksi)
+model booking {
+  id          String   @id @default(uuid())
+  start_time  DateTime
+  end_time    DateTime
+  total_price Int
+  status      String   @default("pending") // pending, confirmed, cancelled
+  
+  // Relasi ke User
+  user        user     @relation(fields: [user_id], references: [id])
+  user_id     String
+  
+  // Relasi ke Field
+  field       field    @relation(fields: [field_id], references: [id])
+  field_id    String
+
+  created_at  DateTime @default(now())
+}
