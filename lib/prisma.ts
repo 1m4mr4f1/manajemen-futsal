@@ -1,21 +1,22 @@
+// File: lib/prisma.ts
+import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@prisma/client';
 
-const connectionString = `${process.env.DATABASE_URL}`;
-
+const connectionString = process.env.DATABASE_URL;
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
-
-const prismaClientSingleton = () => {
-  return new PrismaClient({ adapter }); // Menambahkan adapter yang dibutuhkan Prisma 7
-}
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
+// Pastikan PrismaClient diinisialisasi dengan adapter untuk Prisma 7
+const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    adapter,
+  });
 
 export default prisma;
 
