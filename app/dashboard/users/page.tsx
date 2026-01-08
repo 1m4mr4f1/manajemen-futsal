@@ -1,7 +1,7 @@
 // File: app/dashboard/users/page.tsx
 'use client';
 import { useState, useEffect } from 'react';
-import Swal from 'sweetalert2'; // Import SweetAlert2
+import Swal from 'sweetalert2'; 
 
 // Definisi tipe data User
 type User = {
@@ -55,11 +55,9 @@ export default function UserPage() {
       });
 
       if (res.ok) {
-        // Reset form jika sukses
         setForm({ name: '', email: '', username: '', password: '', role: 'customer' });
-        fetchUsers(); // Refresh tabel
+        fetchUsers(); 
 
-        // --- SWEETALERT SUKSES ---
         Swal.fire({
           icon: 'success',
           title: 'Berhasil!',
@@ -70,7 +68,6 @@ export default function UserPage() {
         });
 
       } else {
-        // --- SWEETALERT ERROR (Validasi Backend) ---
         const err = await res.json();
         Swal.fire({
           icon: 'error',
@@ -81,7 +78,6 @@ export default function UserPage() {
         });
       }
     } catch (error) {
-      // --- SWEETALERT ERROR (System) ---
       Swal.fire({
         icon: 'error',
         title: 'Error Sistem',
@@ -93,14 +89,14 @@ export default function UserPage() {
   };
 
   return (
-    <div className="space-y-8 pb-10">
-      <h1 className="text-3xl font-bold text-[#343C6A]">Manajemen Pengguna</h1>
+    <div className="space-y-6 md:space-y-8 pb-20">
+      <h1 className="text-2xl md:text-3xl font-bold text-[#343C6A]">Manajemen Pengguna</h1>
       
       {/* --- FORM REGISTRASI USER --- */}
-      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+      <div className="bg-white p-5 md:p-8 rounded-xl shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold mb-6 text-gray-700">Registrasi Pengguna Baru</h2>
         
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {/* Baris 1: Nama & Email */}
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-600">Nama Lengkap</label>
@@ -163,14 +159,16 @@ export default function UserPage() {
       </div>
 
       {/* --- TABEL LIST USER --- */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100">
         <h2 className="text-xl font-semibold mb-4 text-[#343C6A]">Daftar Pengguna Terdaftar</h2>
         
         {isLoading ? (
           <p className="text-center text-gray-500 py-10">Memuat data...</p>
         ) : (
+          /* WRAPPER TABLE AGAR BISA SCROLL DI HP */
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            {/* MIN-WIDTH memaksa tabel melebar agar kolom tidak gepeng */}
+            <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                 <tr className="text-gray-400 text-sm border-b border-gray-100">
                   <th className="pb-3 px-4 font-medium">User Info</th>
@@ -179,9 +177,9 @@ export default function UserPage() {
                   <th className="pb-3 px-4 font-medium">Bergabung</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-50">
                 {users.map((user) => (
-                  <tr key={user.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                     {/* Nama & Email */}
                     <td className="py-4 px-4">
                       <div className="font-semibold text-gray-700">{user.name}</div>

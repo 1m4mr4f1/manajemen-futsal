@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Lock, Loader2, Wallet } from 'lucide-react';
-import Swal from 'sweetalert2'; // Import SweetAlert2
+import Swal from 'sweetalert2'; 
 
 export default function LoginPage() {
   const [form, setForm] = useState({ username: '', password: '' });
@@ -22,27 +22,23 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
-        // --- 1. ALERT SUKSES ---
         Swal.fire({
           icon: 'success',
           title: 'Login Berhasil!',
           text: 'Selamat datang kembali, Admin.',
           showConfirmButton: false,
-          timer: 1500, // Otomatis tutup dalam 1.5 detik
+          timer: 1500, 
           timerProgressBar: true,
         }).then(() => {
-          // Pindah ke dashboard setelah alert selesai
           router.push('/dashboard');
         });
-
       } else {
-        // --- 2. ALERT GAGAL ---
         setLoading(false);
         Swal.fire({
           icon: 'error',
           title: 'Akses Ditolak',
           text: 'Username atau Password yang Anda masukkan salah.',
-          confirmButtonColor: '#2D60FF', // Warna brand
+          confirmButtonColor: '#2D60FF',
           confirmButtonText: 'Coba Lagi'
         });
       }
@@ -57,24 +53,26 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center p-4 md:p-8 font-sans">
+    <div className="min-h-dvh bg-[#F5F7FA] flex items-center justify-center p-4 font-sans">
       
       {/* Main Card Container */}
-      <div className="bg-white rounded-[30px] shadow-xl overflow-hidden w-full max-w-[1000px] min-h-[600px] flex flex-col md:flex-row">
+      <div className="bg-white rounded-2xl md:rounded-[30px] shadow-xl overflow-hidden w-full max-w-[1000px] flex flex-col md:flex-row md:min-h-[600px]">
         
         {/* --- BAGIAN KIRI: FORM LOGIN --- */}
-        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
+        <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col justify-center relative">
           
           <div className="flex items-center gap-2 mb-2">
              <div className="text-[#2D60FF]">
-               <Wallet size={32} strokeWidth={2.5} />
+               {/* PERBAIKAN DI SINI: Gunakan className untuk responsive size */}
+               <Wallet className="w-7 h-7 md:w-8 md:h-8" strokeWidth={2.5} />
              </div>
-             <h1 className="text-2xl font-extrabold text-[#343C6A]">Pro Futsal Manajemen.</h1>
+             <h1 className="text-xl md:text-2xl font-extrabold text-[#343C6A]">Pro Futsal.</h1>
           </div>
-          <h2 className="text-3xl font-bold text-[#343C6A] mb-2 mt-8">Welcome Back</h2>
-          <p className="text-gray-400 mb-8 text-sm">Please enter your details to sign in.</p>
+          
+          <h2 className="text-2xl md:text-3xl font-bold text-[#343C6A] mb-2 mt-6 md:mt-8">Welcome Back</h2>
+          <p className="text-gray-400 mb-6 md:mb-8 text-sm">Please enter your details to sign in.</p>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-4 md:space-y-5">
             
             <div className="space-y-1">
               <label className="text-[#343C6A] font-semibold text-sm ml-1">Username</label>
@@ -84,7 +82,7 @@ export default function LoginPage() {
                 </span>
                 <input 
                   type="text" required
-                  className="w-full py-4 pl-12 pr-4 bg-[#F5F7FA] rounded-xl border-2 border-transparent focus:border-[#2D60FF] focus:bg-white outline-none transition-all text-[#343C6A] font-medium placeholder-gray-400"
+                  className="w-full py-3 md:py-4 pl-12 pr-4 bg-[#F5F7FA] rounded-xl border-2 border-transparent focus:border-[#2D60FF] focus:bg-white outline-none transition-all text-[#343C6A] font-medium placeholder-gray-400 text-base"
                   placeholder="masukan username"
                   value={form.username} onChange={(e) => setForm({...form, username: e.target.value})}
                 />
@@ -99,7 +97,7 @@ export default function LoginPage() {
                 </span>
                 <input 
                   type="password" required
-                  className="w-full py-4 pl-12 pr-4 bg-[#F5F7FA] rounded-xl border-2 border-transparent focus:border-[#2D60FF] focus:bg-white outline-none transition-all text-[#343C6A] font-medium placeholder-gray-400"
+                  className="w-full py-3 md:py-4 pl-12 pr-4 bg-[#F5F7FA] rounded-xl border-2 border-transparent focus:border-[#2D60FF] focus:bg-white outline-none transition-all text-[#343C6A] font-medium placeholder-gray-400 text-base"
                   placeholder="••••••••"
                   value={form.password} onChange={(e) => setForm({...form, password: e.target.value})}
                 />
@@ -108,7 +106,7 @@ export default function LoginPage() {
 
             <button 
               disabled={loading}
-              className="w-full bg-[#2D60FF] hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-200 transition-all transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
+              className="w-full bg-[#2D60FF] hover:bg-blue-700 text-white py-3 md:py-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-200 transition-all transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
             >
               {loading ? (
                 <>
@@ -122,11 +120,11 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-8 text-center text-xs text-gray-400">
-            &copy; 2024 BankDash Futsal Management System
+            &copy; 2024 BankDash Futsal System
           </p>
         </div>
 
-        {/* --- BAGIAN KANAN: VISUAL --- */}
+        {/* --- BAGIAN KANAN: VISUAL (HIDDEN DI HP) --- */}
         <div className="hidden md:flex w-1/2 bg-[#2D60FF] relative items-center justify-center p-10 overflow-hidden">
             
             <div className="absolute top-[-20%] right-[-20%] w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl"></div>

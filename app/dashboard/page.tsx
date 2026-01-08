@@ -36,26 +36,35 @@ export default function DashboardHome() {
   if (!stats) return <div className="p-10 text-center text-red-500">Gagal memuat data.</div>;
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-6 md:space-y-8 pb-20">
       
       {/* HEADER & QUICK ACTIONS */}
-      <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4">
+      {/* Stack di HP, Row di Desktop */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#343C6A]">Ringkasan Bisnis</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-[#343C6A]">Ringkasan Bisnis</h1>
           <p className="text-gray-500 text-sm mt-1">Pantau performa futsal hari ini</p>
         </div>
-        <div className="flex gap-3">
-          <Link href="/dashboard/schedule" className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition shadow-sm">
+        
+        {/* Tombol Full Width di HP */}
+        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+          <Link 
+            href="/dashboard/schedule" 
+            className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition shadow-sm text-center"
+          >
             📅 Lihat Jadwal
           </Link>
-          <Link href="/dashboard/transactions/create" className="px-4 py-2 bg-[#2D60FF] text-white rounded-lg hover:bg-blue-700 font-medium transition shadow-sm shadow-blue-200">
+          <Link 
+            href="/dashboard/transactions/create" 
+            className="px-4 py-2 bg-[#2D60FF] text-white rounded-lg hover:bg-blue-700 font-medium transition shadow-sm shadow-blue-200 text-center"
+          >
             + Booking Baru
           </Link>
         </div>
       </div>
       
-      {/* GRID STATISTIK */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* GRID STATISTIK: 1 Kolom HP -> 2 Kolom Tablet -> 4 Kolom Laptop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <StatCard 
           title="Total Pendapatan" 
           value={formatMoney(stats.revenue)} 
@@ -90,17 +99,19 @@ export default function DashboardHome() {
         />
       </div>
 
-      {/* TABEL BOOKING TERBARU (LEBIH LENGKAP) */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      {/* TABEL BOOKING TERBARU (SCROLLABLE) */}
+      <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-[#343C6A]">Aktivitas Booking Terbaru</h2>
-          <Link href="/dashboard/transactions" className="text-sm text-blue-600 hover:underline font-medium">
+          <h2 className="text-lg md:text-xl font-bold text-[#343C6A]">Aktivitas Booking Terbaru</h2>
+          <Link href="/dashboard/transactions" className="text-sm text-blue-600 hover:underline font-medium whitespace-nowrap">
             Lihat Semua &rarr;
           </Link>
         </div>
         
+        {/* Wrapper Scroll Horizontal untuk HP */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          {/* Min-Width agar tabel tidak gepeng */}
+          <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="text-gray-400 text-xs uppercase tracking-wider border-b border-gray-100">
                 <th className="pb-4 px-4 font-semibold">Pelanggan</th>
@@ -144,7 +155,7 @@ export default function DashboardHome() {
 
                     {/* KOLOM 2: JADWAL (Tanggal & Jam) */}
                     <td className="py-4 px-4">
-                      <div className="text-sm font-medium text-gray-700">
+                      <div className="text-sm font-medium text-gray-700 whitespace-nowrap">
                         {formatDateTime(b.start_time)}
                       </div>
                       <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
@@ -154,13 +165,13 @@ export default function DashboardHome() {
 
                     {/* KOLOM 3: LAPANGAN */}
                     <td className="py-4 px-4">
-                      <span className="text-sm font-medium text-indigo-900 bg-indigo-50 px-3 py-1 rounded-lg">
+                      <span className="text-sm font-medium text-indigo-900 bg-indigo-50 px-3 py-1 rounded-lg whitespace-nowrap">
                         {b.field.name}
                       </span>
                     </td>
 
                     {/* KOLOM 4: HARGA */}
-                    <td className="py-4 px-4 font-bold text-emerald-600">
+                    <td className="py-4 px-4 font-bold text-emerald-600 whitespace-nowrap">
                       {formatMoney(b.total_price)}
                     </td>
 
@@ -185,16 +196,16 @@ export default function DashboardHome() {
   );
 }
 
-// Komponen Card Statistik yang dipercantik
+// Komponen Card Statistik (Responsive)
 function StatCard({ title, value, sub, color, bgIcon, icon }: any) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-start justify-between hover:shadow-md transition-shadow">
+    <div className="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-gray-100 flex items-start justify-between hover:shadow-md transition-shadow">
       <div>
         <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">{title}</p>
-        <p className={`text-2xl font-black mt-2 ${color}`}>{value}</p>
+        <p className={`text-xl md:text-2xl font-black mt-2 ${color}`}>{value}</p>
         {sub && <p className="text-[10px] text-gray-400 mt-1">{sub}</p>}
       </div>
-      <div className={`w-12 h-12 ${bgIcon} rounded-xl flex items-center justify-center text-2xl`}>
+      <div className={`w-10 h-10 md:w-12 md:h-12 ${bgIcon} rounded-xl flex items-center justify-center text-xl md:text-2xl`}>
         {icon}
       </div>
     </div>

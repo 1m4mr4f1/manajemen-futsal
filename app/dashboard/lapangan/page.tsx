@@ -1,9 +1,9 @@
 // File: app/dashboard/lapangan/page.tsx
 'use client';
 import { useEffect, useState } from 'react';
-import Swal from 'sweetalert2'; // Import SweetAlert2
+import Swal from 'sweetalert2'; 
 
-// Tipe data untuk TypeScript
+// Tipe data
 type Field = {
   id: string;
   name: string;
@@ -19,7 +19,7 @@ export default function LapanganPage() {
   const [form, setForm] = useState({ name: '', type: 'Vinyl', price: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. Fetch Data saat halaman dibuka
+  // 1. Fetch Data
   const fetchFields = async () => {
     try {
       const res = await fetch('/api/fields');
@@ -36,7 +36,7 @@ export default function LapanganPage() {
     fetchFields();
   }, []);
 
-  // 2. Handle Submit Form Tambah (Update dengan SweetAlert)
+  // 2. Handle Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -51,10 +51,9 @@ export default function LapanganPage() {
       });
       
       if (res.ok) {
-        setForm({ name: '', type: 'Vinyl', price: '' }); // Reset form
-        fetchFields(); // Refresh tabel
+        setForm({ name: '', type: 'Vinyl', price: '' }); 
+        fetchFields(); 
         
-        // --- ALERT SUKSES ---
         Swal.fire({
           icon: 'success',
           title: 'Berhasil!',
@@ -65,7 +64,6 @@ export default function LapanganPage() {
         });
       }
     } catch (err) {
-      // --- ALERT ERROR ---
       Swal.fire({
         icon: 'error',
         title: 'Gagal',
@@ -76,32 +74,23 @@ export default function LapanganPage() {
     }
   };
 
-  // 3. Handle Hapus (Update dengan Konfirmasi SweetAlert)
+  // 3. Handle Hapus
   const handleDelete = async (id: string) => {
-    // Tampilkan Dialog Konfirmasi
     const result = await Swal.fire({
       title: 'Hapus Lapangan?',
       text: "Data lapangan ini akan dihapus permanen!",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33', // Merah untuk bahaya
-      cancelButtonColor: '#3085d6', // Biru untuk batal
+      confirmButtonColor: '#d33',
       confirmButtonText: 'Ya, Hapus!',
       cancelButtonText: 'Batal'
     });
 
-    // Jika user klik "Ya, Hapus!"
     if (result.isConfirmed) {
       try {
         await fetch(`/api/fields/${id}`, { method: 'DELETE' });
-        fetchFields(); // Refresh tabel
-        
-        // Notifikasi Sukses Hapus
-        Swal.fire(
-          'Terhapus!',
-          'Data lapangan berhasil dihapus.',
-          'success'
-        );
+        fetchFields(); 
+        Swal.fire('Terhapus!', 'Data lapangan berhasil dihapus.', 'success');
       } catch (err) {
         Swal.fire('Error!', 'Gagal menghapus data.', 'error');
       }
@@ -109,22 +98,22 @@ export default function LapanganPage() {
   };
 
   return (
-    <div className="space-y-8 pb-10">
-      <h1 className="text-3xl font-bold text-[#343C6A]">Manajemen Lapangan</h1>
+    <div className="space-y-6 md:space-y-8 pb-20">
+      <h1 className="text-2xl md:text-3xl font-bold text-[#343C6A]">Manajemen Lapangan</h1>
 
-      {/* Bagian 1: Form Tambah Lapangan */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      {/* --- FORM TAMBAH LAPANGAN --- */}
+      <div className="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold mb-4 text-gray-700">Tambah Lapangan Baru</h2>
+        
+        {/* Layout Form: Stack di HP, Row di Desktop */}
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-end">
-          <div className="flex-1 w-full">
+          
+          <div className="w-full flex-1">
             <label className="text-sm font-medium text-gray-600">Nama Lapangan</label>
             <input 
-              type="text" 
-              required
-              placeholder="Contoh: Lapangan A"
+              type="text" required placeholder="Contoh: Lapangan A"
               className="w-full mt-1 p-3 bg-[#F5F7FA] rounded-lg outline-none border border-transparent focus:border-blue-500 transition-all"
-              value={form.name}
-              onChange={(e) => setForm({...form, name: e.target.value})}
+              value={form.name} onChange={(e) => setForm({...form, name: e.target.value})}
             />
           </div>
           
@@ -132,8 +121,7 @@ export default function LapanganPage() {
             <label className="text-sm font-medium text-gray-600">Jenis Lantai</label>
             <select 
               className="w-full mt-1 p-3 bg-[#F5F7FA] rounded-lg outline-none cursor-pointer"
-              value={form.type}
-              onChange={(e) => setForm({...form, type: e.target.value})}
+              value={form.type} onChange={(e) => setForm({...form, type: e.target.value})}
             >
               <option value="Vinyl">Vinyl</option>
               <option value="Sintetis">Rumput Sintetis</option>
@@ -145,33 +133,33 @@ export default function LapanganPage() {
           <div className="w-full md:w-48">
             <label className="text-sm font-medium text-gray-600">Harga / Jam</label>
             <input 
-              type="number" 
-              required
-              placeholder="Rp"
+              type="number" required placeholder="Rp"
               className="w-full mt-1 p-3 bg-[#F5F7FA] rounded-lg outline-none border border-transparent focus:border-blue-500 transition-all"
-              value={form.price}
-              onChange={(e) => setForm({...form, price: e.target.value})}
+              value={form.price} onChange={(e) => setForm({...form, price: e.target.value})}
             />
           </div>
 
+          {/* Tombol Full Width di HP */}
           <button 
             disabled={isSubmitting}
-            className="bg-[#2D60FF] hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 min-w-[120px]"
+            className="w-full md:w-auto bg-[#2D60FF] hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 min-w-[120px]"
           >
             {isSubmitting ? '...' : '+ Tambah'}
           </button>
         </form>
       </div>
 
-      {/* Bagian 2: Tabel Daftar Lapangan */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      {/* --- TABEL DAFTAR LAPANGAN --- */}
+      <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100">
         <h2 className="text-xl font-semibold mb-4 text-[#343C6A]">Daftar Lapangan Tersedia</h2>
         
         {isLoading ? (
           <p className="text-center text-gray-500 py-10">Memuat data...</p>
         ) : (
+          /* WRAPPER SCROLL HORIZONTAL (PENTING) */
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            {/* Min Width agar kolom tidak gepeng */}
+            <table className="w-full text-left border-collapse min-w-[600px]">
               <thead>
                 <tr className="text-gray-400 text-sm border-b border-gray-100">
                   <th className="pb-3 px-4 font-medium">Nama Lapangan</th>
@@ -180,17 +168,17 @@ export default function LapanganPage() {
                   <th className="pb-3 px-4 font-medium text-right">Aksi</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-50">
                 {fields.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="text-center py-8 text-gray-400">Belum ada data lapangan.</td>
                   </tr>
                 ) : (
                   fields.map((field) => (
-                    <tr key={field.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                    <tr key={field.id} className="hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-4 font-semibold text-gray-700">{field.name}</td>
                       <td className="py-4 px-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                           field.type === 'Vinyl' ? 'bg-blue-100 text-blue-600' :
                           field.type === 'Sintetis' ? 'bg-green-100 text-green-600' :
                           'bg-orange-100 text-orange-600'
@@ -198,13 +186,13 @@ export default function LapanganPage() {
                           {field.type}
                         </span>
                       </td>
-                      <td className="py-4 px-4 font-bold text-gray-700">
+                      <td className="py-4 px-4 font-bold text-gray-700 whitespace-nowrap">
                         Rp {field.price_per_hour.toLocaleString('id-ID')}
                       </td>
                       <td className="py-4 px-4 text-right">
                         <button 
                           onClick={() => handleDelete(field.id)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-red-100"
                         >
                           Hapus
                         </button>

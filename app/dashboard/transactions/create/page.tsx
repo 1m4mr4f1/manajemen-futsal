@@ -1,23 +1,23 @@
 // File: app/dashboard/transactions/create/page.tsx
 'use client';
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Swal from 'sweetalert2'; // Import SweetAlert2
+import Swal from 'sweetalert2'; 
 
 export default function CreateBookingPage() {
   const router = useRouter();
   
-  // Data Master
+  // --- STATE DATA ---
   const [users, setUsers] = useState<any[]>([]);
   const [fields, setFields] = useState<any[]>([]);
   const [allBookings, setAllBookings] = useState<any[]>([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Toggle Mode
+  // --- STATE FORM ---
   const [bookingType, setBookingType] = useState<'member' | 'guest'>('guest');
 
-  // Helper: Mendapatkan tanggal hari ini dalam format YYYY-MM-DD
   const getTodayString = () => {
     const d = new Date();
     const year = d.getFullYear();
@@ -38,7 +38,7 @@ export default function CreateBookingPage() {
 
   const operatingHours = Array.from({ length: 14 }, (_, i) => i + 8); 
 
-  // 1. Fetch Data Lengkap
+  // 1. FETCH DATA
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,6 +56,7 @@ export default function CreateBookingPage() {
         setFields(fieldData);
         setAllBookings(bookingData);
 
+        // Set default values jika data ada
         if (userData.length > 0) setForm(prev => ({ ...prev, user_id: userData[0].id }));
         if (fieldData.length > 0) setForm(prev => ({ ...prev, field_id: fieldData[0].id }));
         
@@ -69,7 +70,7 @@ export default function CreateBookingPage() {
     fetchData();
   }, []);
 
-  // 2. Logika Cek Jam Terpakai
+  // 2. VALIDASI JAM BENTROK
   const isHourOccupied = (hour: number) => {
     const bookingsOnDate = allBookings.filter(b => {
       const bookingDate = new Date(b.start_time).toISOString().split('T')[0];
@@ -83,14 +84,14 @@ export default function CreateBookingPage() {
     });
   };
 
-  // 3. Hitung Estimasi Harga
+  // 3. HITUNG HARGA
   const getEstimatedPrice = () => {
     const field = fields.find(f => f.id === form.field_id);
     if (!field) return 0;
     return field.price_per_hour * parseInt(form.duration);
   };
 
-  // 4. Handle Submit (Updated with SweetAlert)
+  // 4. SUBMIT
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -111,11 +112,8 @@ export default function CreateBookingPage() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Gagal membuat booking");
-      }
+      if (!res.ok) throw new Error(data.error || "Gagal membuat booking");
 
-      // --- SWEETALERT SUKSES ---
       Swal.fire({
         icon: 'success',
         title: 'Booking Berhasil!',
@@ -124,13 +122,11 @@ export default function CreateBookingPage() {
         showConfirmButton: false,
         timerProgressBar: true
       }).then(() => {
-        // Redirect setelah alert selesai
         router.push('/dashboard/transactions');
         router.refresh(); 
       });
 
     } catch (err: any) {
-      // --- SWEETALERT ERROR ---
       Swal.fire({
         icon: 'error',
         title: 'Gagal Booking',
@@ -145,21 +141,23 @@ export default function CreateBookingPage() {
   if (isLoading) return <div className="p-10 text-center text-gray-500">Memuat form...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-10">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-[#343C6A]">Input Booking Baru</h1>
+    <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 pb-20">
+      
+      {/* HEADER: Stack di HP, Row di Desktop */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold text-[#343C6A]">Input Booking Baru</h1>
         <button 
           onClick={() => router.back()} 
-          className="text-gray-500 hover:text-gray-800 font-medium px-4 py-2 hover:bg-gray-100 rounded-lg transition"
+          className="self-start md:self-auto text-gray-500 hover:text-gray-800 font-medium px-4 py-2 hover:bg-gray-100 rounded-lg transition border border-gray-200"
         >
           &larr; Kembali
         </button>
       </div>
 
-      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+      <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
         
-        {/* Toggle Mode Member / Guest */}
-        <div className="flex gap-4 mb-8 border-b border-gray-100 pb-6">
+        {/* TOGGLE: Tombol besar vertikal di HP, horizontal di Desktop */}
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-8 border-b border-gray-100 pb-6">
           <button 
             type="button"
             onClick={() => setBookingType('guest')}
@@ -187,9 +185,9 @@ export default function CreateBookingPage() {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
           
-          {/* DATA PELANGGAN */}
+          {/* BAGIAN 1: DATA PELANGGAN */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-700 border-l-4 border-blue-500 pl-3">
               Data Pelanggan
@@ -209,13 +207,12 @@ export default function CreateBookingPage() {
                 </select>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-2">Nama Pemesan</label>
                   <input 
-                    type="text" required
-                    placeholder="Contoh: Pak Budi"
-                    className="w-full p-3 bg-[#F5F7FA] rounded-lg outline-none focus:border-blue-500 border border-transparent transition"
+                    type="text" required placeholder="Contoh: Pak Budi"
+                    className="w-full p-3 bg-[#F5F7FA] rounded-lg outline-none focus:border-blue-500 border border-transparent"
                     value={form.guest_name}
                     onChange={(e) => setForm({...form, guest_name: e.target.value})}
                   />
@@ -223,9 +220,8 @@ export default function CreateBookingPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-2">Nomor HP / WA</label>
                   <input 
-                    type="text" required
-                    placeholder="Contoh: 08123456789"
-                    className="w-full p-3 bg-[#F5F7FA] rounded-lg outline-none focus:border-blue-500 border border-transparent transition"
+                    type="text" required placeholder="Contoh: 08123456789"
+                    className="w-full p-3 bg-[#F5F7FA] rounded-lg outline-none focus:border-blue-500 border border-transparent"
                     value={form.guest_phone}
                     onChange={(e) => setForm({...form, guest_phone: e.target.value})}
                   />
@@ -234,17 +230,18 @@ export default function CreateBookingPage() {
             )}
           </div>
 
-          {/* DATA JADWAL */}
+          {/* BAGIAN 2: JADWAL */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-700 border-l-4 border-blue-500 pl-3">
               Detail Jadwal Main
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              {/* Lapangan full width di kolom ini */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-600 mb-2">Pilih Lapangan</label>
                 <select 
-                  className="w-full p-3 bg-[#F5F7FA] rounded-lg border border-transparent focus:border-blue-500 outline-none transition"
+                  className="w-full p-3 bg-[#F5F7FA] rounded-lg border border-transparent focus:border-blue-500 outline-none"
                   value={form.field_id}
                   onChange={(e) => setForm({...form, field_id: e.target.value})}
                 >
@@ -259,20 +256,19 @@ export default function CreateBookingPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-2">Tanggal Main</label>
                 <input 
-                  type="date" 
-                  required
-                  min={getTodayString()} 
-                  className="w-full p-3 bg-[#F5F7FA] rounded-lg outline-none focus:border-blue-500 border border-transparent transition"
+                  type="date" required min={getTodayString()} 
+                  className="w-full p-3 bg-[#F5F7FA] rounded-lg outline-none focus:border-blue-500 border border-transparent"
                   value={form.date}
                   onChange={(e) => setForm({...form, date: e.target.value})}
                 />
               </div>
 
-              <div className="flex gap-4">
+              {/* Jam dan Durasi Bersebelahan */}
+              <div className="flex gap-3 md:gap-4">
                 <div className="flex-1">
                   <label className="block text-sm font-medium text-gray-600 mb-2">Jam Mulai</label>
                   <select 
-                    className="w-full p-3 bg-[#F5F7FA] rounded-lg outline-none focus:border-blue-500 border border-transparent transition"
+                    className="w-full p-3 bg-[#F5F7FA] rounded-lg outline-none focus:border-blue-500 border border-transparent"
                     value={form.start_hour}
                     onChange={(e) => setForm({...form, start_hour: e.target.value})}
                   >
@@ -280,9 +276,7 @@ export default function CreateBookingPage() {
                       const isOccupied = isHourOccupied(h);
                       return (
                         <option 
-                          key={h} 
-                          value={h.toString().padStart(2, '0')}
-                          disabled={isOccupied} 
+                          key={h} value={h.toString().padStart(2, '0')} disabled={isOccupied} 
                           className={isOccupied ? "bg-red-100 text-gray-400" : ""}
                         >
                           {h.toString().padStart(2, '0')}:00 {isOccupied ? '(Terisi)' : ''}
@@ -294,37 +288,36 @@ export default function CreateBookingPage() {
                 <div className="flex-1">
                   <label className="block text-sm font-medium text-gray-600 mb-2">Durasi</label>
                   <select 
-                    className="w-full p-3 bg-[#F5F7FA] rounded-lg outline-none focus:border-blue-500 border border-transparent transition"
+                    className="w-full p-3 bg-[#F5F7FA] rounded-lg outline-none focus:border-blue-500 border border-transparent"
                     value={form.duration}
                     onChange={(e) => setForm({...form, duration: e.target.value})}
                   >
-                    <option value="1">1 Jam</option>
-                    <option value="2">2 Jam</option>
-                    <option value="3">3 Jam</option>
-                    <option value="4">4 Jam</option>
+                    {[1,2,3,4].map(d => <option key={d} value={d}>{d} Jam</option>)}
                   </select>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* BAGIAN 3: RINGKASAN & SUBMIT */}
           <div className="pt-6 border-t border-gray-100">
-            <div className="bg-blue-50 p-6 rounded-xl flex flex-col md:flex-row justify-between items-center border border-blue-100 gap-4">
-              <div>
-                <p className="text-sm text-blue-600 font-medium mb-1">Ringkasan Jadwal:</p>
+            <div className="bg-blue-50 p-6 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left border border-blue-100">
+              
+              <div className="w-full md:w-auto">
+                <p className="text-sm text-blue-600 font-medium mb-1">Ringkasan:</p>
                 <p className="text-xl font-bold text-blue-900">
                   {form.start_hour}:00 s/d {parseInt(form.start_hour) + parseInt(form.duration)}:00
                 </p>
-                <p className="text-sm text-blue-500 mt-1">
-                  Durasi {form.duration} Jam
-                </p>
+                <p className="text-sm text-blue-500 mt-1">Durasi {form.duration} Jam</p>
               </div>
-              <div className="text-center md:text-right">
+
+              <div className="w-full md:w-auto text-center md:text-right">
                 <p className="text-sm text-blue-600 font-medium mb-1">Total Biaya:</p>
                 <p className="text-3xl font-black text-blue-800">
                   Rp {getEstimatedPrice().toLocaleString('id-ID')}
                 </p>
               </div>
+
             </div>
 
             <button 
