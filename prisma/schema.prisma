@@ -6,22 +6,23 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // Catatan: Untuk Prisma 7, baris 'url' tidak ditulis di sini, 
-  // melainkan diatur melalui prisma.config.ts
+  // Catatan: URL database diatur melalui prisma.config.ts atau .env
+  // Jika error, pastikan file .env memiliki DATABASE_URL
 }
 
-// 1. Definisi Enum (Penyebab error sebelumnya)
+// 1. Definisi Enum
 enum role {
   customer
   admin
 }
 
-// 2. Model User
+// 2. Model User (Member Terdaftar)
 model user {
   id         String    @id @default(uuid())
   username   String    @unique
   password   String
   email      String    @unique
+  phone      String?   // Tambahan: Nomor HP Member (Optional)
   name       String?
   role       role      @default(customer)
   bookings   booking[]
@@ -32,7 +33,7 @@ model user {
 model field {
   id             String    @id @default(uuid())
   name           String
-  type           String    // Contoh: 'vinyl' atau 'sintetis'
+  type           String    // Contoh: 'vinyl', 'sintetis'
   price_per_hour Int
   bookings       booking[]
 }
@@ -40,16 +41,25 @@ model field {
 // 4. Model Booking (Transaksi)
 model booking {
   id          String   @id @default(uuid())
+  
+  // Waktu Main
   start_time  DateTime
   end_time    DateTime
   total_price Int
   status      String   @default("pending") // pending, confirmed, cancelled
+
+  // --- RELASI HYBRID (MEMBER / GUEST) ---
   
-  // Relasi ke User
-  user        user     @relation(fields: [user_id], references: [id])
-  user_id     String
+  // A. Jika pemesan adalah Member (User Terdaftar)
+  // user_id dibuat String? (Optional) agar tamu tidak wajib punya akun
+  user        user?    @relation(fields: [user_id], references: [id])
+  user_id     String?
   
-  // Relasi ke Field
+  // B. Jika pemesan adalah Tamu (Walk-in / Non-Member)
+  guest_name  String?
+  guest_phone String?
+
+  // --- RELASI LAPANGAN (Wajib) ---
   field       field    @relation(fields: [field_id], references: [id])
   field_id    String
 

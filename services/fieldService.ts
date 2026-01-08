@@ -2,28 +2,28 @@
 import prisma from "@/lib/prisma";
 
 export const fieldService = {
-  // Mengambil semua data lapangan
+  // Ambil semua data lapangan
   async getAllFields() {
     return await prisma.field.findMany({
-      orderBy: { name: 'asc' }
+      orderBy: { name: 'asc' } // Urutkan berdasarkan nama
     });
   },
 
-  // Menambah lapangan baru
+  // Tambah lapangan baru
   async createField(data: { name: string; type: string; price_per_hour: number }) {
     return await prisma.field.create({
       data: {
         name: data.name,
         type: data.type,
-        price_per_hour: data.price_per_hour
-      }
+        price_per_hour: data.price_per_hour,
+      },
     });
   },
 
-  // Cari lapangan berdasarkan ID (berguna untuk booking nanti)
-  async getFieldById(id: string) {
-    return await prisma.field.findUnique({
-      where: { id }
+  // Hapus lapangan
+  async deleteField(id: string) {
+    return await prisma.field.delete({
+      where: { id },
     });
   }
 };

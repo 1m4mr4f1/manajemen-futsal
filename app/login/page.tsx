@@ -1,6 +1,10 @@
+// File: app/login/page.tsx
+
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { User, Lock, Loader2, Wallet } from 'lucide-react';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 export default function LoginPage() {
   const [form, setForm] = useState({ username: '', password: '' });
@@ -11,56 +15,148 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(form),
-    });
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(form),
+      });
 
-    if (res.ok) {
-      router.push('/dashboard');
-    } else {
-      alert("Username atau Password salah!");
+      if (res.ok) {
+        // --- 1. ALERT SUKSES ---
+        Swal.fire({
+          icon: 'success',
+          title: 'Login Berhasil!',
+          text: 'Selamat datang kembali, Admin.',
+          showConfirmButton: false,
+          timer: 1500, // Otomatis tutup dalam 1.5 detik
+          timerProgressBar: true,
+        }).then(() => {
+          // Pindah ke dashboard setelah alert selesai
+          router.push('/dashboard');
+        });
+
+      } else {
+        // --- 2. ALERT GAGAL ---
+        setLoading(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'Akses Ditolak',
+          text: 'Username atau Password yang Anda masukkan salah.',
+          confirmButtonColor: '#2D60FF', // Warna brand
+          confirmButtonText: 'Coba Lagi'
+        });
+      }
+    } catch (error) {
       setLoading(false);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Sistem',
+        text: 'Terjadi kesalahan koneksi. Silakan cek internet Anda.',
+      });
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center p-6">
-      <div className="bg-white p-10 md:p-14 rounded-[40px] shadow-sm w-full max-w-[500px] border border-gray-100">
-        <div className="flex flex-col items-center mb-10">
-          <div className="w-12 h-12 bg-[#2D60FF] rounded-xl mb-4 flex items-center justify-center text-white font-bold text-xl">FP</div>
-          <h1 className="text-[28px] font-black text-[#343C6A]">BankDash Login</h1>
-          <p className="text-[#718EBF] mt-2">Enter your credentials to access your account</p>
+    <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center p-4 md:p-8 font-sans">
+      
+      {/* Main Card Container */}
+      <div className="bg-white rounded-[30px] shadow-xl overflow-hidden w-full max-w-[1000px] min-h-[600px] flex flex-col md:flex-row">
+        
+        {/* --- BAGIAN KIRI: FORM LOGIN --- */}
+        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
+          
+          <div className="flex items-center gap-2 mb-2">
+             <div className="text-[#2D60FF]">
+               <Wallet size={32} strokeWidth={2.5} />
+             </div>
+             <h1 className="text-2xl font-extrabold text-[#343C6A]">Pro Futsal Manajemen.</h1>
+          </div>
+          <h2 className="text-3xl font-bold text-[#343C6A] mb-2 mt-8">Welcome Back</h2>
+          <p className="text-gray-400 mb-8 text-sm">Please enter your details to sign in.</p>
+
+          <form onSubmit={handleLogin} className="space-y-5">
+            
+            <div className="space-y-1">
+              <label className="text-[#343C6A] font-semibold text-sm ml-1">Username</label>
+              <div className="relative group">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#2D60FF] transition-colors">
+                  <User size={20} />
+                </span>
+                <input 
+                  type="text" required
+                  className="w-full py-4 pl-12 pr-4 bg-[#F5F7FA] rounded-xl border-2 border-transparent focus:border-[#2D60FF] focus:bg-white outline-none transition-all text-[#343C6A] font-medium placeholder-gray-400"
+                  placeholder="masukan username"
+                  value={form.username} onChange={(e) => setForm({...form, username: e.target.value})}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-[#343C6A] font-semibold text-sm ml-1">Password</label>
+              <div className="relative group">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#2D60FF] transition-colors">
+                  <Lock size={20} />
+                </span>
+                <input 
+                  type="password" required
+                  className="w-full py-4 pl-12 pr-4 bg-[#F5F7FA] rounded-xl border-2 border-transparent focus:border-[#2D60FF] focus:bg-white outline-none transition-all text-[#343C6A] font-medium placeholder-gray-400"
+                  placeholder="••••••••"
+                  value={form.password} onChange={(e) => setForm({...form, password: e.target.value})}
+                />
+              </div>
+            </div>
+
+            <button 
+              disabled={loading}
+              className="w-full bg-[#2D60FF] hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-200 transition-all transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={24} className="animate-spin" />
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                "Login Now"
+              )}
+            </button>
+          </form>
+
+          <p className="mt-8 text-center text-xs text-gray-400">
+            &copy; 2024 BankDash Futsal Management System
+          </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-[#343C6A] font-medium ml-1">Username</label>
-            <input 
-              type="text" required
-              className="w-full p-4 bg-white border border-[#E6EFF5] rounded-[15px] focus:ring-2 focus:ring-[#2D60FF] outline-none transition-all placeholder:text-[#888EA8]"
-              placeholder="admin1"
-              value={form.username} onChange={(e) => setForm({...form, username: e.target.value})}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-[#343C6A] font-medium ml-1">Password</label>
-            <input 
-              type="password" required
-              className="w-full p-4 bg-white border border-[#E6EFF5] rounded-[15px] focus:ring-2 focus:ring-[#2D60FF] outline-none transition-all placeholder:text-[#888EA8]"
-              placeholder="••••••••"
-              value={form.password} onChange={(e) => setForm({...form, password: e.target.value})}
-            />
-          </div>
+        {/* --- BAGIAN KANAN: VISUAL --- */}
+        <div className="hidden md:flex w-1/2 bg-[#2D60FF] relative items-center justify-center p-10 overflow-hidden">
+            
+            <div className="absolute top-[-20%] right-[-20%] w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-white/10 rounded-full blur-3xl"></div>
 
-          <button 
-            disabled={loading}
-            className="w-full bg-[#2D60FF] text-white py-4 rounded-[15px] font-bold text-lg shadow-lg shadow-blue-100 hover:bg-[#1a4fdf] transition-all disabled:bg-gray-400"
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
+            <div className="relative z-10 bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-[30px] shadow-2xl max-w-[320px]">
+                <div className="aspect-[3/4] rounded-2xl overflow-hidden relative bg-gray-200">
+                    <img 
+                      src="/futsal.png" 
+                      alt="Futsal Visual" 
+                      className="w-full h-full object-cover"
+                    />
+                </div>
+                
+                <div className="absolute -left-8 top-10 bg-white p-3 rounded-xl shadow-lg flex items-center gap-3 animate-bounce-slow">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                        ⚡
+                    </div>
+                    <div>
+                        <p className="text-[10px] text-gray-400 font-bold">SYSTEM STATUS</p>
+                        <p className="text-xs font-bold text-green-600">Online</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="absolute bottom-10 left-0 w-full text-center px-8 z-20">
+                <p className="text-white/80 text-sm font-medium">Manage your futsal business efficiently.</p>
+            </div>
+        </div>
+
       </div>
     </div>
   );

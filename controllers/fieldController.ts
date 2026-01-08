@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { fieldService } from "@/services/fieldService";
 
 export const fieldController = {
-  // Handler untuk GET
+  // GET: Ambil semua data
   async getFields() {
     try {
       const fields = await fieldService.getAllFields();
@@ -13,20 +13,34 @@ export const fieldController = {
     }
   },
 
-  // Handler untuk POST
+  // POST: Tambah data
   async createField(request: Request) {
     try {
       const body = await request.json();
-      
-      // Validasi sederhana atau transformasi data dilakukan di sini
-      const fieldData = {
-        name: body.name,
-        type: body.type,
-        price_per_hour: parseInt(body.price_per_hour)
-      };
+      const { name, type, price_per_hour } = body;
 
-      const newField = await fieldService.createField(fieldData);
+      // Validasi sederhana
+      if (!name || !type || !price_per_hour) {
+        return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 });
+      }
+
+      const newField = await fieldService.createField({
+        name,
+        type,
+        price_per_hour: Number(price_per_hour) // Pastikan jadi number
+      });
+
       return NextResponse.json(newField, { status: 201 });
+    } catch (error: any) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+  },
+
+  // DELETE: Hapus data
+  async deleteField(id: string) {
+    try {
+      await fieldService.deleteField(id);
+      return NextResponse.json({ message: "Lapangan berhasil dihapus" });
     } catch (error: any) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }

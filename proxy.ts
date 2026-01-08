@@ -6,10 +6,9 @@ export function proxy(request: NextRequest) {
   const session = request.cookies.get('auth_session');
   const { pathname } = request.nextUrl;
 
-  // Proteksi halaman dashboard
-  if (pathname.startsWith('/dashboard')) {
+  // Logika Proteksi
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/api/user')) {
     if (!session) {
-      // Jika tidak ada session, lempar kembali ke login
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
@@ -17,7 +16,9 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Konfigurasi agar proxy hanya berjalan pada rute tertentu (opsional tapi disarankan)
 export const config = {
-  matcher: ['/dashboard/:path*', '/api/user/:path*'],
+  matcher: [
+    '/dashboard/:path*',
+    '/api/user/:path*',
+  ],
 };
