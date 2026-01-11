@@ -6,8 +6,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // Catatan: URL database diatur melalui prisma.config.ts atau .env
-  // Jika error, pastikan file .env memiliki DATABASE_URL
+  // JANGAN tulis url atau directUrl di sini
 }
 
 // 1. Definisi Enum
@@ -16,17 +15,20 @@ enum role {
   admin
 }
 
-// 2. Model User (Member Terdaftar)
 model user {
-  id         String    @id @default(uuid())
-  username   String    @unique
-  password   String
-  email      String    @unique
-  phone      String?   // Tambahan: Nomor HP Member (Optional)
-  name       String?
-  role       role      @default(customer)
-  bookings   booking[]
-  created_at DateTime  @default(now())
+  id                    String    @id @default(uuid())
+  username              String    @unique
+  password              String
+  email                 String    @unique
+  phone                 String?
+  name                  String?
+  role                  role      @default(customer)
+  bookings              booking[]
+  created_at            DateTime  @default(now())
+
+  // --- TAMBAHAN UNTUK THROTTLING ---
+  failed_login_attempts Int       @default(0) // Default 0
+  locked_until          DateTime?             // Boleh null (artinya tidak terkunci)
 }
 
 // 3. Model Field (Lapangan)

@@ -18,14 +18,19 @@ export default function LoginPage() {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
 
+      // [PENTING] Ambil pesan JSON dari server (berisi info sisa kesempatan / lock)
+      const data = await res.json();
+
       if (res.ok) {
+        // --- SKENARIO SUKSES ---
         Swal.fire({
           icon: 'success',
           title: 'Login Berhasil!',
-          text: 'Selamat datang kembali, Admin.',
+          text: `Selamat datang kembali, ${data.user?.name || 'Admin'}.`,
           showConfirmButton: false,
           timer: 1500, 
           timerProgressBar: true,
@@ -33,21 +38,29 @@ export default function LoginPage() {
           router.push('/dashboard');
         });
       } else {
+        // --- SKENARIO GAGAL / DIKUNCI ---
         setLoading(false);
+
+        // Cek apakah statusnya 429 (Terlalu Banyak Request / Terkunci)
+        const isThrottled = res.status === 429;
+
         Swal.fire({
           icon: 'error',
-          title: 'Akses Ditolak',
-          text: 'Username atau Password yang Anda masukkan salah.',
-          confirmButtonColor: '#2D60FF',
-          confirmButtonText: 'Coba Lagi'
+          // Judul berubah sesuai kondisi
+          title: isThrottled ? '⏳ Akses Ditahan' : 'Login Gagal',
+          // Pesan diambil langsung dari backend (data.error)
+          text: data.error || 'Username atau Password salah.',
+          confirmButtonColor: isThrottled ? '#EF4444' : '#2D60FF',
+          confirmButtonText: isThrottled ? 'Saya Mengerti' : 'Coba Lagi'
         });
       }
     } catch (error) {
       setLoading(false);
+      console.error("Login Error:", error);
       Swal.fire({
         icon: 'error',
         title: 'Error Sistem',
-        text: 'Terjadi kesalahan koneksi. Silakan cek internet Anda.',
+        text: 'Gagal terhubung ke server. Pastikan internet Anda aktif.',
       });
     }
   };
@@ -63,7 +76,6 @@ export default function LoginPage() {
           
           <div className="flex items-center gap-2 mb-2">
              <div className="text-[#2D60FF]">
-               {/* PERBAIKAN DI SINI: Gunakan className untuk responsive size */}
                <Wallet className="w-7 h-7 md:w-8 md:h-8" strokeWidth={2.5} />
              </div>
              <h1 className="text-xl md:text-2xl font-extrabold text-[#343C6A]">Pro Futsal.</h1>
@@ -105,13 +117,14 @@ export default function LoginPage() {
             </div>
 
             <button 
+              type="submit"
               disabled={loading}
               className="w-full bg-[#2D60FF] hover:bg-blue-700 text-white py-3 md:py-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-200 transition-all transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
             >
               {loading ? (
                 <>
                   <Loader2 size={24} className="animate-spin" />
-                  <span>Signing in...</span>
+                  <span>Checking...</span>
                 </>
               ) : (
                 "Login Now"
